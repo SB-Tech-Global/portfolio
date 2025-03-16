@@ -141,7 +141,7 @@ export default function Portfolio() {
     setLoading(true);
 
     try {
-      const response = await fetch("routerback.ntgen1.in/api/v1/portfolio/reach-out/", {
+      const response = await fetch("https://routerback.ntgen1.in/api/v1/portfolio/reach-out/", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
