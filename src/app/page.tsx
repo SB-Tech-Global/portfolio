@@ -38,8 +38,8 @@ const iconMap: { [key: string]: React.ReactNode } = {
   Code2: <Code2 className="h-6 w-6" />,
 };
 
-const API_BASE_URL = "http://127.0.0.1:8000/api/v1"
-// const API_BASE_URL = "https://portfolio-backend.ntgen1.in/api/v1"
+// const API_BASE_URL = "http://127.0.0.1:8000/api/v1"
+const API_BASE_URL = "https://portfolio-backend.ntgen1.in/api/v1"
 
 export default function Portfolio() {
   const { toast } = useToast();
