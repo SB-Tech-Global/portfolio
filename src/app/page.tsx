@@ -71,7 +71,7 @@ export default function Portfolio() {
       "Microservices Maestro 🧩", "Serverless Specialist ⚡", "Tech Mentor 👨🏫", "Code Poet ✍️"
     ];
 
-    titles.forEach((title, i) => {
+    titles.forEach((title) => {
       typeIt
         .type(title)
         .pause(300) // short pause after typing
