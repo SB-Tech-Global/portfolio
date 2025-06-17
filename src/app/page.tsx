@@ -9,7 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { Globe, Mail, Github, Linkedin, Briefcase, Download, Rocket, Code2 } from "lucide-react";
 import { FaHtml5, FaCss3Alt, FaJs, FaReact, FaDocker, FaGitAlt, FaAws } from 'react-icons/fa';
-import { SiNextdotjs, SiPython, SiDjango, SiPostgresql, SiMongodb, SiRedis, SiElasticsearch, SiApachekafka } from 'react-icons/si';
+import { SiNextdotjs, SiPython, SiDjango, SiPostgresql, SiMongodb, SiRedis, SiElasticsearch, SiApachekafka, SiKubernetes, SiJenkins, SiTerraform, SiAnsible, SiGrafana, SiPrometheus } from 'react-icons/si';
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
@@ -23,46 +23,71 @@ interface Project {
   project_github: string;
 }
 
+interface Experience {
+  title: string;
+  company: string;
+  date: string;
+  description: string;
+  tech: string[];
+  icon_name: string;
+}
+
+const iconMap: { [key: string]: React.ReactNode } = {
+  Rocket: <Rocket className="h-6 w-6" />,
+  Briefcase: <Briefcase className="h-6 w-6" />,
+  Code2: <Code2 className="h-6 w-6" />,
+};
+
+const API_BASE_URL = "http://127.0.0.1:8000/api/v1"
+// const API_BASE_URL = "https://portfolio-backend.ntgen1.in/api/v1"
+
 export default function Portfolio() {
   const { toast } = useToast();
   const typeItRef = useRef<TypeIt | null>(null);
 
   const [projects, setProjects] = useState<Project[]>([]);
+  const [experiences, setExperiences] = useState<Experience[]>([]);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({ name: "", email: "", text: "" });
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      typeItRef.current = new TypeIt("#typeit-element", {
-        strings: [
-          "Full-Stack Engineer 💻", "Web Architect 🏗️", "API Artisan 🛠️", "Cloud Developer ☁️",
-          "DevOps Advocate 🚀", "Database Whisperer 🗄️", "UI/UX Alchemist 🎨", "Tech Stack Juggler 🤹",
-          "Code Optimizer ⚡", "Open Source Contributor 🌍", "CI/CD Specialist 🔄", "Blockchain Builder ⛓️",
-          "AI/ML Integrator 🧠", "Security Guardian 🛡️", "Tech Evangelist 📢", "Mobile Maestro 📱",
-          "Microservices Maestro 🧩", "Serverless Specialist ⚡", "Tech Mentor 👨🏫", "Code Poet ✍️"
-        ],
-        speed: 80,
-        deleteSpeed: 50,
-        breakLines: false,
-        lifeLike: true,
-        loop: true,
-        nextStringDelay: 1000,
-        startDelay: 200,
-        cursor: true,
-        cursorChar: "|",
-        cursorSpeed: 100,
-      }).go();
-    }
+  if (typeof window !== "undefined") {
+    const typeIt = new TypeIt("#typeit-element", {
+      speed: 70,
+      deleteSpeed: 40,
+      breakLines: false,
+      lifeLike: true,
+      loop: true,
+      cursor: true,
+      cursorChar: "|",
+      startDelay: 0,
+    });
 
-    return () => {
-      if (typeItRef.current) typeItRef.current.destroy();
-    };
-  }, []);
+    const titles = [
+      "Full-Stack Engineer 💻", "Web Architect 🏗️", "API Artisan 🛠️", "Cloud Developer ☁️",
+      "DevOps Advocate 🚀", "Database Whisperer 🗄️", "UI/UX Alchemist 🎨", "Tech Stack Juggler 🤹",
+      "Code Optimizer ⚡", "Open Source Contributor 🌍", "CI/CD Specialist 🔄", "Blockchain Builder ⛓️",
+      "AI/ML Integrator 🧠", "Security Guardian 🛡️", "Tech Evangelist 📢", "Mobile Maestro 📱",
+      "Microservices Maestro 🧩", "Serverless Specialist ⚡", "Tech Mentor 👨🏫", "Code Poet ✍️"
+    ];
+
+    titles.forEach((title, i) => {
+      typeIt
+        .type(title)
+        .pause(300) // short pause after typing
+        .delete(title.length)
+        .pause(100); // shorter pause before next string
+    });
+
+    typeIt.go();
+    typeItRef.current = typeIt;
+  }
+}, []);
 
   useEffect(() => {
     async function fetchProjects() {
       try {
-        const res = await fetch("https://portfolio-backend.ntgen1.in/api/v1/portfolio/projects/");
+        const res = await fetch(`${API_BASE_URL}/portfolio/projects/`);
         const data = await res.json();
         setProjects(data.data);
       } catch (err) {
@@ -71,6 +96,20 @@ export default function Portfolio() {
     }
 
     fetchProjects();
+  }, []);
+
+  useEffect(() => {
+    async function fetchExperiences() {
+      try {
+        const res = await fetch(`${API_BASE_URL}/portfolio/experiences/`);
+        const data = await res.json();
+        setExperiences(data.data);
+      } catch (err) {
+        console.error("Failed to fetch Experiences:", err);
+      }
+    }
+
+    fetchExperiences();
   }, []);
 
   const skills = [
@@ -87,36 +126,42 @@ export default function Portfolio() {
     { name: 'ElasticSearch', icon: <SiElasticsearch className='text-yellow-600 w-12 h-12' /> },
     { name: 'Kafka', icon: <SiApachekafka className='text-black dark:text-white w-12 h-12' /> },
     { name: 'GIT', icon: <FaGitAlt className='text-red-500 w-12 h-12' /> },
-    { name: 'Amazon Web Services', icon: <FaAws className='text-orange-400 w-12 h-12' /> },
     { name: 'Docker', icon: <FaDocker className='text-blue-400 w-12 h-12' /> },
+    { name: 'Jenkins', icon: <SiJenkins className='text-red-700 w-12 h-12' /> },
+    { name: 'Kubernetes', icon: <SiKubernetes className='text-blue-500 w-12 h-12' /> },
+    { name: 'Amazon Web Services', icon: <FaAws className='text-orange-400 w-12 h-12' /> },
+    { name: 'Terraform', icon: <SiTerraform className='text-purple-600 w-12 h-12' /> },
+    { name: 'Ansible', icon: <SiAnsible className='text-red-800 w-12 h-12' /> },
+    { name: 'Grafana', icon: <SiGrafana className='text-orange-500 w-12 h-12' /> },
+    { name: 'Prometheus', icon: <SiPrometheus className='text-orange-600 w-12 h-12' /> },
   ];
 
-  const experiences = [
-    {
-      title: "Software Development Engineer - 1",
-      company: "Masters India",
-      date: "Oct 2022 - Present",
-      description: "Leading cross-functional teams in building enterprise-scale applications",
-      tech: ["MongoDB", "AWS", "Docker", "Redis", "ELK"],
-      icon: <Rocket className="h-6 w-6" />,
-    },
-    {
-      title: "Software Development Engineer Intern",
-      company: "Masters India",
-      date: "Jul 2022 - Oct 2022",
-      description: "Develop Many New Feature & Improvement Legacy Code.",
-      tech: ["Python", "Django", "PostgreSQL", "Postman"],
-      icon: <Code2 className="h-6 w-6" />,
-    },
-    {
-      title: "Penetration Tester Intern",
-      company: "CyberSocial",
-      date: "Jun 2022 - Jul 2022",
-      description: "Built client websites and e-commerce solutions",
-      tech: ["Burp Suite", "OWASP ZAP", "Nmap", "Wireshark", "SQLmap", "Metasploit"],
-      icon: <Briefcase className="h-6 w-6" />,
-    },
-  ];
+  // const experiences = [
+  //   {
+  //     title: "Software Development Engineer - 1",
+  //     company: "Masters India",
+  //     date: "Oct 2022 - Present",
+  //     description: "Leading cross-functional teams in building enterprise-scale applications",
+  //     tech: ["MongoDB", "AWS", "Docker", "Redis", "ELK"],
+  //     icon: <Rocket className="h-6 w-6" />,
+  //   },
+  //   {
+  //     title: "Software Development Engineer Intern",
+  //     company: "Masters India",
+  //     date: "Jul 2022 - Oct 2022",
+  //     description: "Develop Many New Feature & Improvement Legacy Code.",
+  //     tech: ["Python", "Django", "PostgreSQL", "Postman"],
+  //     icon: <Code2 className="h-6 w-6" />,
+  //   },
+  //   {
+  //     title: "Penetration Tester Intern",
+  //     company: "CyberSocial",
+  //     date: "Jun 2022 - Jul 2022",
+  //     description: "Built client websites and e-commerce solutions",
+  //     tech: ["Burp Suite", "OWASP ZAP", "Nmap", "Wireshark", "SQLmap", "Metasploit"],
+  //     icon: <Briefcase className="h-6 w-6" />,
+  //   },
+  // ];
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -127,7 +172,7 @@ export default function Portfolio() {
     setLoading(true);
 
     try {
-      const response = await fetch("https://portfolio-backend.ntgen1.in/api/v1/portfolio/reach-out/", {
+      const response = await fetch(`${API_BASE_URL}/portfolio/reach-out/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
@@ -212,15 +257,15 @@ export default function Portfolio() {
                     <Card className="p-6 hover:shadow-lg">
                       <CardHeader className="p-0 mb-4">
                         <div className={`${index % 2 === 0 ? "flex items-center gap-2 md:justify-end" : "flex items-center gap-2 md:justify-start"}`}>
-                          {index % 2 === 0 ? (<><span className="text-primary">{exp.icon}</span><h3 className="text-xl font-semibold">{exp.title}</h3></>)
-                            : (<><h3 className="text-xl font-semibold">{exp.title}</h3><span className="text-primary">{exp.icon}</span></>)}
+                          {index % 2 === 0 ? (<><span className="text-primary">{iconMap[exp.icon_name]}</span><h3 className="text-xl font-semibold">{exp.title}</h3></>)
+                            : (<><h3 className="text-xl font-semibold">{exp.title}</h3><span className="text-primary">{iconMap[exp.icon_name]}</span></>)}
                         </div>
                         <p className="text-muted-foreground">{exp.company}</p>
                         <p className="text-sm text-muted-foreground">{exp.description}</p>
                       </CardHeader>
                       <CardContent className="p-0 space-y-4">
                         <div className={`${index % 2 === 0 ? "flex flex-wrap gap-2 md:justify-end" : "flex flex-wrap gap-2 md:justify-start"}`}>
-                          {exp.tech.map((tech, i) => (
+                          {exp.tech && exp.tech.map((tech, i) => (
                             <Badge key={i} variant="secondary">{tech}</Badge>
                           ))}
                         </div>
